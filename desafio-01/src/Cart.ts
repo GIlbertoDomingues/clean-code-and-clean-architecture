@@ -1,4 +1,5 @@
 import Dinero from 'dinero.js';
+import { validateCPF } from './utils';
 
 const Money = Dinero;
 Money.defaultCurrency = 'BRL';
@@ -11,14 +12,20 @@ export interface IProduct {
   description: string;
 }
 
+export interface IUser {
+  id: number;
+  name: string;
+  cpf: string;
+}
+
 export interface ICartItem {
   products: IProduct
   quantity: number
   discount?: number
+  user: IUser
 }
 
 export default class Cart {
-
   items = [] as ICartItem[];
 
   constructor() {
@@ -29,17 +36,36 @@ export default class Cart {
     return this.items;
   }
 
-  addItem(item: ICartItem) {
-    const hasProduct = this.items.find(
-      product => product.products.id === this.items[0].products.id
-    );
+  validateDocument(user: IUser) {
+    const userDocumentValid = validateCPF(user.cpf);
 
-    if (hasProduct) {
-      hasProduct.quantity += 1;
-      return;
+    if (!userDocumentValid) {
+      throw new Error('Invalid document');
     }
 
-    this.items.push(item);
+    return userDocumentValid;
+  }
+
+  addItem(item: ICartItem) {
+
+    const hasUser = this.items.find(
+      user => user.user.id === this.items[0].user.id
+    );
+
+    const userDocument = this.validateDocument(item.user);
+
+    if (userDocument) {
+      const hasProduct = this.items.find(
+        product => product.products.id === this.items[0].products.id
+      );
+
+      if (hasProduct) {
+        hasProduct.quantity += 1;
+        return;
+      }
+
+      this.items.push(item);
+    }
   }
 
   getTotal() {

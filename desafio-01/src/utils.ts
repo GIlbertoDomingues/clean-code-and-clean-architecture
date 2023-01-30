@@ -1,4 +1,4 @@
-export function validate(str: string) {
+export function validateCPF(str: string) {
   if (str !== null) {
     if (str !== undefined) {
       if (str.length >= 11 || str.length <= 14) {
@@ -7,8 +7,8 @@ export function validate(str: string) {
           .replace(".", "")
           .replace("-", "")
           .replace(" ", "");
-
         if (!str.split("").every((c) => c === str[0])) {
+          console.log('utils', str)
           try {
             let d1, d2;
             let dg1, dg2, rest;
